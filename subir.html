@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir Materiales - EducaLibre</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="subir.html" class="active">Subir Materiales</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="subir-material">
+    <h2>Subir Material Educativo</h2>
+    <p>Como maestro, puedes subir documentos, videos o presentaciones para compartir con tus estudiantes.</p>
+
+    <form action="procesar_subida.php" method="POST" enctype="multipart/form-data">
+      <label for="archivo">Selecciona un archivo:</label>
+      <input type="file" name="archivo" id="archivo" required>
+
+      <label for="nivel">Nivel educativo:</label>
+      <select name="nivel" id="nivel" required>
+        <option value="kinder">Kínder</option>
+        <option value="primaria">Primaria</option>
+        <option value="secundaria">Secundaria</option>
+      </select>
+
+      <button type="submit">Subir archivo</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 EducaLibre - Organización sin fines de lucro</p>
+  </footer>
+</body>
+</html>
