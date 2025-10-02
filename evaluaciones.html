@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Evaluaciones - EducaLibre</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* estilos aquí (idénticos al anterior) */
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    select, button {
+      padding: 0.7rem;
+      margin: 1rem 0;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .quiz-question {
+      margin-bottom: 1.5rem;
+    }
+    .quiz-question h3 {
+      margin-bottom: 0.5rem;
+      color: #004080;
+    }
+    .quiz-question label {
+      display: block;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      color: green;
+    }
+    .btn-eval {
+      background: #004080;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-eval:hover {
+      background: #0066cc;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="actividades.html">Actividades</a></li>
+        <li><a href="evaluaciones.html" class="active">Evaluaciones</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="container">
+    <h2>Evaluaciones en Línea</h2>
+
+    <label for="nivel">Selecciona tu nivel educativo:</label>
+    <select id="nivel">
+      <option value="">-- Seleccionar Nivel --</option>
+      <option value="kinder">Kinder</option>
+      <option value="primaria">Primaria</option>
+      <option value="secundaria">Secundaria</option>
+    </select>
+
+    <label for="materia">Selecciona una materia:</label>
+    <select id="materia" disabled>
+      <option value="">-- Selecciona Materia --</option>
+    </select>
+
+    <form id="quizForm" style="display: none;">
+      <div id="quizContainer"></div>
+      <button type="submit" class="btn-eval">Enviar Respuestas</button>
+      <div id="result"></div>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 EducaLibre - Organización sin fines de lucro</p>
+  </footer>
+
+  <script>
+    const nivelSelect = document.getElementById('nivel');
+    const materiaSelect = document.getElementById('materia');
+    const quizForm = document.getElementById('quizForm');
+    const quizContainer = document.getElementById('quizContainer');
+    const result = document.getElementById('result');
+
+    // Materias por nivel con value sin espacios para el select
+    const materiasPorNivel = {
+      kinder: ['Colores', 'Numeros', 'Figuras'],
+      primaria: ['Matematicas', 'Lenguaje', 'CienciasNaturales', 'Historia', 'Geografia'],
+      secundaria: ['Matematicas', 'LenguaYLiteratura', 'Biologia', 'Fisica', 'Quimica', 'HistoriaUniversal', 'Geografia']
+    };
+
+    // Cuestionarios con claves que coinciden con value del select (sin espacios)
+    const cuestionarios = {
+      kinder: {
+        Colores: [
+          { pregunta: '¿De qué color es el cielo?', opciones: ['Rojo', 'Azul', 'Verde'], correcta: 'Azul' },
+          { pregunta: '¿Cuál es el color del sol?', opciones: ['Amarillo', 'Azul', 'Marrón'], correcta: 'Amarillo' },
+          { pregunta: '¿El pasto es de color...?', opciones: ['Rojo', 'Verde', 'Gris'], correcta: 'Verde' },
+          { pregunta: '¿Qué color tiene una fresa?', opciones: ['Amarillo', 'Rojo', 'Azul'], correcta: 'Rojo' },
+          { pregunta: '¿Qué color resulta de mezclar rojo y azul?', opciones: ['Verde', 'Morado', 'Naranja'], correcta: 'Morado' }
+        ],
+        Numeros: [
+          { pregunta: '¿Qué número viene después del 2?', opciones: ['1', '3', '4'], correcta: '3' },
+          { pregunta: '¿Cuál es mayor?', opciones: ['1', '5', '0'], correcta: '5' },
+          { pregunta: '¿Cuántos dedos hay en una mano?', opciones: ['3', '4', '5'], correcta: '5' },
+          { pregunta: 'Si tienes 2 manzanas y te dan 1 más, ¿cuántas tienes?', opciones: ['3', '4', '2'], correcta: '3' },
+          { pregunta: '¿Qué número es menor?', opciones: ['7', '2', '9'], correcta: '2' }
+        ],
+        Figuras: [
+          { pregunta: '¿Cuál tiene 3 lados?', opciones: ['Triángulo', 'Cuadrado', 'Círculo'], correcta: 'Triángulo' },
+          { pregunta: '¿Cuál figura es redonda?', opciones: ['Círculo', 'Rectángulo', 'Cuadro'], correcta: 'Círculo' },
+          { pregunta: '¿Cuál tiene 4 lados?', opciones: ['Cuadrado', 'Círculo', 'Triángulo'], correcta: 'Cuadrado' },
+          { pregunta: '¿Cuál figura parece una moneda?', opciones: ['Círculo', 'Rectángulo', 'Estrella'], correcta: 'Círculo' },
+          { pregunta: '¿Cuál figura se parece a una puerta?', opciones: ['Rectángulo', 'Círculo', 'Triángulo'], correcta: 'Rectángulo' }
+        ]
+      },
+      primaria: {
+        Matematicas: [
+          { pregunta: '¿Cuánto es 7 + 5?', opciones: ['10', '12', '13'], correcta: '12' },
+          { pregunta: '¿Cuál es el doble de 6?', opciones: ['12', '8', '18'], correcta: '12' },
+          { pregunta: '¿Cuánto es 9 - 3?', opciones: ['6', '4', '3'], correcta: '6' },
+          { pregunta: '¿Cuál es la mitad de 10?', opciones: ['3', '5', '10'], correcta: '5' },
+          { pregunta: '¿Cuál número es impar?', opciones: ['4', '6', '7'], correcta: '7' }
+        ],
+        Lenguaje: [
+          { pregunta: '¿Cuál es un sustantivo?', opciones: ['Correr', 'Mesa', 'Rápidamente'], correcta: 'Mesa' },
+          { pregunta: '¿Qué signo se usa en una pregunta?', opciones: ['!', '?', '.'], correcta: '?' },
+          { pregunta: '¿Cuál es un verbo?', opciones: ['Comer', 'Perro', 'Rápido'], correcta: 'Comer' },
+          { pregunta: '¿Qué palabra es un adjetivo?', opciones: ['Alto', 'Mesa', 'Lápiz'], correcta: 'Alto' },
+          { pregunta: '¿Qué oración está bien escrita?', opciones: ['el sol brilla.', 'El sol brilla.', 'sol el brilla'], correcta: 'El sol brilla.' }
+        ],
+        CienciasNaturales: [
+          { pregunta: '¿Qué parte del cuerpo usamos para ver?', opciones: ['Pies', 'Ojos', 'Manos'], correcta: 'Ojos' },
+          { pregunta: '¿Qué necesita una planta para vivir?', opciones: ['Agua', 'Arena', 'Sombra'], correcta: 'Agua' },
+          { pregunta: '¿Qué órgano bombea la sangre?', opciones: ['Pulmón', 'Corazón', 'Hígado'], correcta: 'Corazón' },
+          { pregunta: '¿Dónde nacen los pollitos?', opciones: ['De una caja', 'De un huevo', 'De una flor'], correcta: 'De un huevo' },
+          { pregunta: '¿Qué animal es mamífero?', opciones: ['Perro', 'Rana', 'Pez'], correcta: 'Perro' }
+        ],
+        Historia: [
+          { pregunta: '¿Quién fue Cristóbal Colón?', opciones: ['Pintor', 'Explorador', 'Científico'], correcta: 'Explorador' },
+          { pregunta: '¿Qué año llegó Colón a América?', opciones: ['1492', '1510', '1600'], correcta: '1492' },
+          { pregunta: '¿Dónde vivían los mayas?', opciones: ['África', 'América', 'Asia'], correcta: 'América' },
+          { pregunta: '¿Qué se celebra el 20 de noviembre en México?', opciones: ['Revolución Mexicana', 'Día del Padre', 'Independencia'], correcta: 'Revolución Mexicana' },
+          { pregunta: '¿Quién fue Miguel Hidalgo?', opciones: ['Presidente', 'Sacerdote', 'Cantante'], correcta: 'Sacerdote' }
+        ],
+        Geografia: [
+          { pregunta: '¿Cuál es el océano más grande?', opciones: ['Atlántico', 'Pacífico', 'Índico'], correcta: 'Pacífico' },
+          { pregunta: '¿Cuál es un continente?', opciones: ['Francia', 'Asia', 'Cancún'], correcta: 'Asia' },
+          { pregunta: '¿Qué país está en América del Norte?', opciones: ['México', 'Brasil', 'España'], correcta: 'México' },
+          { pregunta: '¿Cuál es un desierto famoso?', opciones: ['Amazonas', 'Sahara', 'Himalaya'], correcta: 'Sahara' },
+          { pregunta: '¿Cuál es la capital de México?', opciones: ['Monterrey', 'CDMX', 'Guadalajara'], correcta: 'CDMX' }
+        ]
+      },
+      secundaria: {
+        Matematicas: [
+          { pregunta: '¿Cuál es el resultado de 8 x 7?', opciones: ['54', '56', '64'], correcta: '56' },
+          { pregunta: '¿Qué número es primo?', opciones: ['9', '11', '15'], correcta: '11' },
+          { pregunta: '¿Cuál es la raíz cuadrada de 81?', opciones: ['7', '9', '11'], correcta: '9' },
+          { pregunta: '¿Cuánto es 15 dividido entre 3?', opciones: ['3', '5', '6'], correcta: '5' },
+          { pregunta: '¿Qué representa el área de un rectángulo?', opciones: ['Base x Altura', 'Perímetro', 'Volumen'], correcta: 'Base x Altura' }
+        ],
+        LenguaYLiteratura: [
+          { pregunta: '¿Qué es un adverbio?', opciones: ['Palabra que modifica un verbo', 'Nombre de persona', 'Tipo de oración'], correcta: 'Palabra que modifica un verbo' },
+          { pregunta: '¿Cuál es el sinónimo de "rápido"?', opciones: ['Lento', 'Veloz', 'Grande'], correcta: 'Veloz' },
+          { pregunta: '¿Cuál es el antónimo de "triste"?', opciones: ['Feliz', 'Cansado', 'Enojado'], correcta: 'Feliz' },
+          { pregunta: '¿Qué es una metáfora?', opciones: ['Comparación directa', 'Tipo de poema', 'Refrán'], correcta: 'Comparación directa' },
+          { pregunta: '¿Qué es un sustantivo propio?', opciones: ['Nombre común', 'Nombre de persona o lugar', 'Verbo'], correcta: 'Nombre de persona o lugar' }
+        ],
+        Biologia: [
+          { pregunta: '¿Cuál es la unidad básica de la vida?', opciones: ['Célula', 'Átomo', 'Molécula'], correcta: 'Célula' },
+          { pregunta: '¿Qué órgano produce la insulina?', opciones: ['Páncreas', 'Hígado', 'Corazón'], correcta: 'Páncreas' },
+          { pregunta: '¿Qué sistema protege el cuerpo?', opciones: ['Digestivo', 'Inmunológico', 'Nervioso'], correcta: 'Inmunológico' },
+          { pregunta: '¿Qué son los mamíferos?', opciones: ['Animales con plumas', 'Animales con pelo y glándulas mamarias', 'Reptiles'], correcta: 'Animales con pelo y glándulas mamarias' },
+          { pregunta: '¿Qué función tiene el corazón?', opciones: ['Bombear sangre', 'Filtrar aire', 'Producir hormonas'], correcta: 'Bombear sangre' }
+        ],
+        Fisica: [
+          { pregunta: '¿Qué es la fuerza?', opciones: ['Masa por aceleración', 'Velocidad', 'Distancia'], correcta: 'Masa por aceleración' },
+          { pregunta: '¿Qué unidad se usa para medir la energía?', opciones: ['Newton', 'Joule', 'Metro'], correcta: 'Joule' },
+          { pregunta: '¿Qué representa la velocidad?', opciones: ['Distancia dividida entre tiempo', 'Masa multiplicada por volumen', 'Fuerza por tiempo'], correcta: 'Distancia dividida entre tiempo' },
+          { pregunta: '¿Cuál es la fórmula de la velocidad?', opciones: ['v = d / t', 'v = m x a', 'v = f / m'], correcta: 'v = d / t' },
+          { pregunta: '¿Qué es la gravedad?', opciones: ['Fuerza que atrae objetos', 'Fuerza de fricción', 'Movimiento acelerado'], correcta: 'Fuerza que atrae objetos' }
+        ],
+        Quimica: [
+          { pregunta: '¿Qué es un átomo?', opciones: ['Partícula básica de la materia', 'Molécula grande', 'Elemento químico'], correcta: 'Partícula básica de la materia' },
+          { pregunta: '¿Cuál es el símbolo del agua?', opciones: ['H2O', 'CO2', 'NaCl'], correcta: 'H2O' },
+          { pregunta: '¿Qué es una reacción química?', opciones: ['Transformación de sustancias', 'Movimiento de partículas', 'Cambio de temperatura'], correcta: 'Transformación de sustancias' },
+          { pregunta: '¿Qué elemento es gas noble?', opciones: ['Helio', 'Oxígeno', 'Carbono'], correcta: 'Helio' },
+          { pregunta: '¿Qué es un ion?', opciones: ['Átomo con carga eléctrica', 'Molécula neutra', 'Elemento metálico'], correcta: 'Átomo con carga eléctrica' }
+        ],
+        HistoriaUniversal: [
+          { pregunta: '¿En qué año comenzó la Segunda Guerra Mundial?', opciones: ['1939', '1914', '1945'], correcta: '1939' },
+          { pregunta: '¿Quién fue Napoleón Bonaparte?', opciones: ['Emperador francés', 'Rey de España', 'Presidente de EE.UU.'], correcta: 'Emperador francés' },
+          { pregunta: '¿Qué civilización construyó las pirámides?', opciones: ['Egipcia', 'Romana', 'Griega'], correcta: 'Egipcia' },
+          { pregunta: '¿Cuál fue la causa principal de la Revolución Francesa?', opciones: ['Desigualdad social', 'Guerras', 'Invasiones'], correcta: 'Desigualdad social' },
+          { pregunta: '¿Qué tratado puso fin a la Primera Guerra Mundial?', opciones: ['Tratado de Versalles', 'Tratado de París', 'Tratado de Berlín'], correcta: 'Tratado de Versalles' }
+        ],
+        Geografia: [
+          { pregunta: '¿Cuál es el río más largo del mundo?', opciones: ['Nilo', 'Amazonas', 'Misisipi'], correcta: 'Nilo' },
+          { pregunta: '¿Qué continente tiene más países?', opciones: ['África', 'Asia', 'Europa'], correcta: 'África' },
+          { pregunta: '¿Cuál es la montaña más alta?', opciones: ['Everest', 'K2', 'Kangchenjunga'], correcta: 'Everest' },
+          { pregunta: '¿Dónde está el desierto de Atacama?', opciones: ['Chile', 'Perú', 'Argentina'], correcta: 'Chile' },
+          { pregunta: '¿Qué país es una isla?', opciones: ['Japón', 'Canadá', 'Brasil'], correcta: 'Japón' }
+        ]
+      }
+    };
+
+    // Llenar select de materias cuando se seleccione nivel
+    nivelSelect.addEventListener('change', () => {
+      const nivel = nivelSelect.value;
+      materiaSelect.innerHTML = '<option value="">-- Selecciona Materia --</option>';
+      quizForm.style.display = 'none';
+      result.textContent = '';
+      if (nivel) {
+        materiasPorNivel[nivel].forEach(materia => {
+          materiaSelect.innerHTML += `<option value="${materia}">${materia.replace(/([A-Z])/g, ' $1').trim()}</option>`;
+        });
+        materiaSelect.disabled = false;
+      } else {
+        materiaSelect.disabled = true;
+      }
+    });
+
+    // Mostrar cuestionario al seleccionar materia
+    materiaSelect.addEventListener('change', () => {
+      const nivel = nivelSelect.value;
+      const materia = materiaSelect.value;
+      result.textContent = '';
+      if (nivel && materia && cuestionarios[nivel] && cuestionarios[nivel][materia]) {
+        mostrarCuestionario(cuestionarios[nivel][materia]);
+        quizForm.style.display = 'block';
+      } else {
+        quizContainer.innerHTML = '';
+        quizForm.style.display = 'none';
+      }
+    });
+
+    // Mostrar preguntas en el formulario
+    function mostrarCuestionario(preguntas) {
+      quizContainer.innerHTML = '';
+      preguntas.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-question';
+        let opcionesHTML = '';
+        item.opciones.forEach(opcion => {
+          opcionesHTML += `
+            <label>
+              <input type="radio" name="q${index}" value="${opcion}" required>
+              ${opcion}
+            </label>
+          `;
+        });
+        div.innerHTML = `
+          <h3>${index + 1}. ${item.pregunta}</h3>
+          ${opcionesHTML}
+        `;
+        quizContainer.appendChild(div);
+      });
+    }
+
+    // Procesar respuestas y mostrar resultado
+    quizForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const nivel = nivelSelect.value;
+      const materia = materiaSelect.value;
+      const respuestas = new FormData(quizForm);
+      const preguntas = cuestionarios[nivel][materia];
+      let correctas = 0;
+      preguntas.forEach((item, index) => {
+        if (respuestas.get('q' + index) === item.correcta) {
+          correctas++;
+        }
+      });
+      result.textContent = `Has respondido correctamente ${correctas} de ${preguntas.length} preguntas.`;
+      // Opcional: bloquear respuestas después de enviar
+      quizForm.querySelectorAll('input').forEach(input => input.disabled = true);
+      quizForm.querySelector('button').disabled = true;
+    });
+  </script>
+</body>
+</html>

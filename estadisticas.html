@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estadísticas - EducaLibre</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .stats-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: #004080;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .stat {
+      background: #eef4ff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stat .value {
+      font-size: 1.5rem;
+      color: #0066cc;
+    }
+    ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="#">Actividades</a></li>
+        <li><a href="evaluaciones.html">Evaluaciones</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="admin.html">Administración</a></li>
+        <li><a href="estadisticas.html" class="active">Estadísticas</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="stats-container">
+    <h2>Estadísticas de Uso</h2>
+
+    <div class="stat">
+      <div>Usuarios activos en el último mes:</div>
+      <div class="value" id="usuarios-activos">--</div>
+    </div>
+
+    <div class="stat">
+      <div>Total de descargas realizadas:</div>
+      <div class="value" id="total-descargas">--</div>
+    </div>
+
+    <div class="stat">
+      <div>Recursos más consultados:</div>
+      <ul id="recursos-populares">
+        <!-- Aquí irán los recursos -->
+      </ul>
+    </div>
+  </section>
+
+  <script>
+    // Datos simulados (en proyecto real vendrían del backend)
+    const datosEstadisticas = {
+      usuariosActivos: 128,
+      totalDescargas: 345,
+      recursosPopulares: [
+        "Videos educativos - 150 consultas",
+        "Ejercicios interactivos - 120 consultas",
+        "Artículos - 95 consultas"
+      ]
+    };
+
+    // Mostrar los datos
+    document.getElementById('usuarios-activos').textContent = datosEstadisticas.usuariosActivos;
+    document.getElementById('total-descargas').textContent = datosEstadisticas.totalDescargas;
+
+    const recursosList = document.getElementById('recursos-populares');
+    datosEstadisticas.recursosPopulares.forEach(recurso => {
+      const li = document.createElement('li');
+      li.textContent = recurso;
+      recursosList.appendChild(li);
+    });
+  </script>
+</body>
+</html>

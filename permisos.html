@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuración de Permisos - EducaLibre</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .permisos-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: #004080;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #004080;
+      color: white;
+    }
+    select {
+      padding: 0.4rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-weight: 600;
+      color: #004080;
+    }
+    button {
+      background: #ffcc00;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+      margin-left: auto;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="#">Actividades</a></li>
+        <li><a href="evaluaciones.html">Evaluaciones</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="admin.html">Administración</a></li>
+        <li><a href="estadisticas.html">Estadísticas</a></li>
+        <li><a href="moderacion.html">Moderación</a></li>
+        <li><a href="permisos.html" class="active">Permisos</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="permisos-container">
+    <h2>Configuración de Permisos de Acceso</h2>
+
+    <table id="usuarios-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol actual</th>
+          <th>Asignar nuevo rol</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Usuarios aparecerán aquí -->
+      </tbody>
+    </table>
+
+    <button onclick="guardarCambios()">Guardar Cambios</button>
+  </section>
+
+  <script>
+    // Datos simulados de usuarios con roles actuales
+    let usuarios = [
+      { id: 1, nombre: "María López", email: "maria@example.com", rol: "usuario" },
+      { id: 2, nombre: "Carlos Ruiz", email: "carlos@example.com", rol: "editor" },
+      { id: 3, nombre: "Ana Martínez", email: "ana@example.com", rol: "usuario" },
+      { id: 4, nombre: "Luis Fernández", email: "luis@example.com", rol: "administrador" },
+    ];
+
+    const rolesDisponibles = ["administrador", "editor", "usuario"];
+
+    const usuariosTableBody = document.querySelector("#usuarios-table tbody");
+
+    function renderUsuarios() {
+      usuariosTableBody.innerHTML = "";
+      usuarios.forEach(usuario => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${usuario.nombre}</td>
+          <td>${usuario.email}</td>
+          <td>${capitalize(usuario.rol)}</td>
+          <td>
+            <select data-id="${usuario.id}">
+              ${rolesDisponibles.map(rol => `
+                <option value="${rol}" ${rol === usuario.rol ? "selected" : ""}>${capitalize(rol)}</option>
+              `).join('')}
+            </select>
+          </td>
+        `;
+        usuariosTableBody.appendChild(tr);
+      });
+    }
+
+    function capitalize(text) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function guardarCambios() {
+      const selects = document.querySelectorAll("select[data-id]");
+      selects.forEach(select => {
+        const id = parseInt(select.getAttribute("data-id"));
+        const nuevoRol = select.value;
+        usuarios = usuarios.map(u => u.id === id ? {...u, rol: nuevoRol} : u);
+      });
+      alert("Permisos actualizados correctamente.");
+      renderUsuarios();
+    }
+
+    // Renderizamos la tabla inicialmente
+    renderUsuarios();
+  </script>
+</body>
+</html>

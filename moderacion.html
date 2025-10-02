@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moderación de Recursos - EducaLibre</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .moderacion-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: #004080;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #004080;
+      color: white;
+    }
+    button {
+      background: #ffcc00;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 5px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+    .btn-rechazar {
+      background: #d9534f;
+      color: white;
+    }
+    .btn-rechazar:hover {
+      background: #c9302c;
+    }
+    .btn-eliminar {
+      background: #777;
+      color: white;
+    }
+    .btn-eliminar:hover {
+      background: #555;
+    }
+    .estado-pendiente {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .estado-aprobado {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    .estado-rechazado {
+      color: #f44336;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="#">Actividades</a></li>
+        <li><a href="evaluaciones.html">Evaluaciones</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="admin.html">Administración</a></li>
+        <li><a href="estadisticas.html">Estadísticas</a></li>
+        <li><a href="moderacion.html" class="active">Moderación</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="moderacion-container">
+    <h2>Moderación de Recursos Publicados</h2>
+    <table id="recursos-table">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Descripción</th>
+          <th>Autor</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Recursos aparecerán aquí -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    // Datos simulados para recursos
+    let recursos = [
+      { id: 1, titulo: "Video: El ciclo del agua", descripcion: "Explicación del ciclo hidrológico", autor: "María López", estado: "pendiente" },
+      { id: 2, titulo: "Artículo: Historia de México", descripcion: "Resumen de la independencia", autor: "Carlos Ruiz", estado: "aprobado" },
+      { id: 3, titulo: "Ejercicios matemáticos", descripcion: "Problemas de álgebra básica", autor: "Ana Martínez", estado: "pendiente" },
+      { id: 4, titulo: "Video: Biología celular", descripcion: "Función de las mitocondrias", autor: "Luis Fernández", estado: "rechazado" },
+    ];
+
+    const recursosTableBody = document.querySelector("#recursos-table tbody");
+
+    function renderRecursos() {
+      recursosTableBody.innerHTML = "";
+      recursos.forEach(recurso => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${recurso.titulo}</td>
+          <td>${recurso.descripcion}</td>
+          <td>${recurso.autor}</td>
+          <td class="estado-${recurso.estado}">${capitalize(recurso.estado)}</td>
+          <td>
+            ${recurso.estado === "pendiente" ? `
+              <button onclick="aprobarRecurso(${recurso.id})">Aprobar</button>
+              <button class="btn-rechazar" onclick="rechazarRecurso(${recurso.id})">Rechazar</button>
+            ` : ""}
+            <button class="btn-eliminar" onclick="eliminarRecurso(${recurso.id})">Eliminar</button>
+          </td>
+        `;
+        recursosTableBody.appendChild(tr);
+      });
+    }
+
+    function capitalize(text) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function aprobarRecurso(id) {
+      recursos = recursos.map(r => r.id === id ? {...r, estado: "aprobado"} : r);
+      alert("Recurso aprobado.");
+      renderRecursos();
+    }
+
+    function rechazarRecurso(id) {
+      recursos = recursos.map(r => r.id === id ? {...r, estado: "rechazado"} : r);
+      alert("Recurso rechazado.");
+      renderRecursos();
+    }
+
+    function eliminarRecurso(id) {
+      if(confirm("¿Seguro que quieres eliminar este recurso?")) {
+        recursos = recursos.filter(r => r.id !== id);
+        renderRecursos();
+      }
+    }
+
+    // Renderizamos al cargar
+    renderRecursos();
+  </script>
+</body>
+</html>

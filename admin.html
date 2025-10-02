@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Administración de Usuarios - EducaLibre</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Añadimos estilos específicos para la administración */
+    .admin-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #004080;
+      color: white;
+    }
+    button {
+      background: #ffcc00;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .form-actions {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EducaLibre</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="recursos.html">Recursos</a></li>
+        <li><a href="#">Actividades</a></li>
+        <li><a href="evaluaciones.html">Evaluaciones</a></li>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="admin.html" class="active">Administración</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="admin-container">
+    <h2>Gestión de Usuarios</h2>
+    
+    <button id="btn-add-user">Crear nuevo usuario</button>
+
+    <table id="users-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Usuarios aparecerán aquí -->
+      </tbody>
+    </table>
+
+    <!-- Formulario oculto para crear/editar usuario -->
+    <div id="user-form-container" style="display:none; margin-top:2rem;">
+      <h3 id="form-title">Crear usuario</h3>
+      <form id="user-form">
+        <div class="form-group">
+          <label for="name">Nombre:</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico:</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="role">Rol:</label>
+          <select id="role" required>
+            <option value="usuario">Usuario</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit">Guardar</button>
+          <button type="button" id="cancel-btn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // Datos simulados (en un proyecto real vendrían del servidor)
+    let users = [
+      { id: 1, name: "Juan Pérez", email: "juan@example.com", role: "usuario" },
+      { id: 2, name: "Ana Gómez", email: "ana@example.com", role: "administrador" }
+    ];
+
+    const usersTableBody = document.querySelector("#users-table tbody");
+    const userFormContainer = document.getElementById("user-form-container");
+    const userForm = document.getElementById("user-form");
+    const btnAddUser = document.getElementById("btn-add-user");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const formTitle = document.getElementById("form-title");
+
+    let editingUserId = null;
+
+    // Función para renderizar la tabla de usuarios
+    function renderUsers() {
+      usersTableBody.innerHTML = "";
+      users.forEach(user => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>
+            <button onclick="editUser(${user.id})">Editar</button>
+            <button onclick="deleteUser(${user.id})" style="background:#d9534f;color:#fff;">Eliminar</button>
+          </td>
+        `;
+        usersTableBody.appendChild(tr);
+      });
+    }
+
+    // Crear nuevo usuario (mostrar formulario)
+    btnAddUser.addEventListener("click", () => {
+      editingUserId = null;
+      formTitle.textContent = "Crear usuario";
+      userForm.name.value = "";
+      userForm.email.value = "";
+      userForm.role.value = "usuario";
+      userFormContainer.style.display = "block";
+    });
+
+    // Cancelar formulario
+    cancelBtn.addEventListener("click", () => {
+      userFormContainer.style.display = "none";
+    });
+
+    // Editar usuario
+    window.editUser = function(id) {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
+      editingUserId = id;
+      formTitle.textContent = "Editar usuario";
+      userForm.name.value = user.name;
+      userForm.email.value = user.email;
+      userForm.role.value = user.role;
+      userFormContainer.style.display = "block";
+    };
+
+    // Eliminar usuario
+    window.deleteUser = function(id) {
+      if (confirm("¿Estás seguro de eliminar este usuario?")) {
+        users = users.filter(u => u.id !== id);
+        renderUsers();
+      }
+    };
+
+    // Guardar usuario (crear o actualizar)
+    userForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const name = userForm.name.value.trim();
+      const email = userForm.email.value.trim();
+      const role = userForm.role.value;
+
+      if (editingUserId) {
+        // Actualizar usuario
+        const user = users.find(u => u.id === editingUserId);
+        if (user) {
+          user.name = name;
+          user.email = email;
+          user.role = role;
+        }
+      } else {
+        // Crear usuario nuevo
+        const newUser = {
+          id: users.length ? users[users.length - 1].id + 1 : 1,
+          name,
+          email,
+          role
+        };
+        users.push(newUser);
+      }
+
+      userFormContainer.style.display = "none";
+      renderUsers();
+    });
+
+    // Renderizamos los usuarios al cargar la página
+    renderUsers();
+  </script>
+</body>
+</html>
